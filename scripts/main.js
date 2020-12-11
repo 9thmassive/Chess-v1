@@ -1,5 +1,5 @@
 let boardColors = document.querySelectorAll('.step')
-let eventStep = boardColors
+// let eventStep = boardColors
 boardColors = Array.from(boardColors)
 let matrixBackGround = []
 for (let i = 0; i <= 8; i++) {
@@ -79,19 +79,46 @@ matrixBackGround.forEach((el, j) => {
 
 let selectedFigure
 let moveFigure
-eventStep.forEach((el, K) => {
-    el.addEventListener('click', (e) => {
-        if (el.innerHTML.includes('img')) {
-            el.style.opacity = '0.9'
-            el.setAttribute('selected', 'true')
-            moveFigure = el.innerHTML
-            el.innerHTML = 'test'
-            console.log(el.innerHTML)
+let eventStep = document.querySelectorAll('img')
+eventStep.forEach((ball, K) => {
+    ball.onmousedown = function (e) {
+        var coords = getCoords(ball)
+        var shiftX = e.pageX - coords.left
+        var shiftY = e.pageY - coords.top
+
+        ball.style.position = 'absolute'
+        document.body.appendChild(ball)
+        moveAt(e)
+
+        ball.style.zIndex = 1000 // над другими элементами
+
+        function moveAt(e) {
+            ball.style.left = e.pageX - shiftX + 'px'
+            ball.style.top = e.pageY - shiftY + 'px'
         }
-        if (!el.innerHTML.includes('img')) {
-            el.innerHTML = moveFigure
+
+        document.onmousemove = function (e) {
+            moveAt(e)
         }
-    })
+
+        ball.onmouseup = function () {
+            document.onmousemove = null
+            ball.onmouseup = null
+        }
+    }
+
+    ball.ondragstart = function () {
+        return false
+    }
+
+    function getCoords(elem) {
+        // кроме IE8-
+        var box = elem.getBoundingClientRect()
+        return {
+            top: box.top + pageYOffset,
+            left: box.left + pageXOffset,
+        }
+    }
 })
 
 class Figure {
